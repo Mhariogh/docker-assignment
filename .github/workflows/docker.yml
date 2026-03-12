@@ -1,9 +1,4 @@
-name: Build and Push Docker Image to GHCR
-
-# Give permissions at workflow level
-permissions:
-  contents: read
-  packages: write
+name: Docker Build & Push
 
 on:
   push:
@@ -15,28 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Login to GitHub Container Registry using PAT
+      # Step 2: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata (tags)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/mhariogh/flask-app
-          tags: |
-            type=ref,event=branch
-            type=sha
+      # Step 3: Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/flask-app:v1.0 .
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+      # Step 4: Push the Docker image to GHCR
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/flask-app:v1.0
