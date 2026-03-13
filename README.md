@@ -89,4 +89,14 @@ Solution: Ran aws ecr get-login-password and piped it to docker login.
 Issue: Docker tag command formatting caused errors.
 
 Solution: Ensured the full registry path was on a single line.
+## Bonus D: .dockerignore
+A `.dockerignore` file was created to exclude unnecessary files from the Docker build context. This reduces build time, decreases image size, and prevents sensitive files from being included.
 
+| Pattern | Description | Reason for Exclusion |
+|--------|-------------|----------------------|
+| `__pycache__/`, `*.pyc`, `*.pyo` | Python cache files | Automatically generated and not required to run the application. |
+| `venv/`, `env/` | Virtual environments | Dependencies will be installed using `requirements.txt`. |
+| `.git`, `.gitignore` | Git repository files | Version control files not needed in the container. |
+| `.dockerignore`, `Dockerfile` | Docker configuration files | Only needed during build, not inside the final image. |
+| `*.swp`, `*.swo`, `.vscode/`, `.idea/` | IDE/editor files | Development environment files not required in production. |
+| `.env` | Environment variables file | May contain sensitive data such as API keys or secrets. |
